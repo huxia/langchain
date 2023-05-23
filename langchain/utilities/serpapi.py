@@ -129,12 +129,17 @@ class SerpAPIWrapper(BaseModel):
         """Process response from SerpAPI."""
         if "error" in res.keys():
             raise ValueError(f"Got error from SerpAPI: {res['error']}")
-        if "answer_box" in res.keys() and "answer" in res["answer_box"].keys():
+        if "answer_box" in res.keys() and isinstance(res["answer_box"], dict) and "answer" in res["answer_box"].keys():
             toret = res["answer_box"]["answer"]
-        elif "answer_box" in res.keys() and "snippet" in res["answer_box"].keys():
+        elif "answer_box" in res.keys() and isinstance(res["answer_box"], dict) and "snippet" in res["answer_box"].keys():
             toret = res["answer_box"]["snippet"]
+        elif "answer_box" in res.keys() and isinstance(res["answer_box"], list) and len(res["answer_box"]) and "answer" in res["answer_box"][0].keys():
+            toret = res["answer_box"][0]["answer"]
+        elif "answer_box" in res.keys() and isinstance(res["answer_box"], list) and len(res["answer_box"]) and "snippet" in res["answer_box"][0].keys():
+            toret = res["answer_box"][0]["snippet"]
         elif (
             "answer_box" in res.keys()
+            and isinstance(res["answer_box"], dict)
             and "snippet_highlighted_words" in res["answer_box"].keys()
         ):
             toret = res["answer_box"]["snippet_highlighted_words"][0]
